@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+<head>
+    <title>Slurm Jobs</title>
+</head>
+<body>
+    <h1>Slurm Job Queue</h1>
+    <p><a href="{{ url_for('submit') }}">Submit new job</a></p>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <ul>
+        {% for category, message in messages %}
+        <li><strong>{{ category }}</strong>: {{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+    <table border="1" cellpadding="5" cellspacing="0">
+        <tr>
+            <th>ID</th><th>Name</th><th>Status</th><th>Queue</th><th>NodeList</th><th>Time Used</th><th>Time Limit</th><th>Actions</th>
+        </tr>
+        {% for job in jobs %}
+        <tr>
+            <td>{{ job.id }}</td>
+            <td>{{ job.name }}</td>
+            <td>{{ job.status }}</td>
+            <td>{{ job.queue }}</td>
+            <td>{{ job.node_list }}</td>
+            <td>{{ job.cur_time }}</td>
+            <td>{{ job.max_time }}</td>
+            <td>
+                <form action="{{ url_for('cancel', job_id=job.id) }}" method="post" style="display:inline">
+                    <button type="submit">Cancel</button>
+                </form>
+                <a href="{{ url_for('output', job_id=job.id) }}">Output</a>
+                <a href="{{ url_for('error', job_id=job.id) }}">Error</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

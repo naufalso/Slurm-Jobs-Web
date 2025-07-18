@@ -1,0 +1,9 @@
+<!doctype html>
+<html>
+<head><title>{{ file_type.capitalize() }} for Job {{ job_id }}</title></head>
+<body>
+    <h1>{{ file_type.capitalize() }} for Job {{ job_id }}</h1>
+    <pre>{{ content }}</pre>
+    <p><a href="{{ url_for('index') }}">Back</a></p>
+</body>
+</html>
