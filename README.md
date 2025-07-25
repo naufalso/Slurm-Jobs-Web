@@ -8,6 +8,7 @@ This project provides a simple Flask based dashboard for monitoring Slurm jobs. 
 - Cancel running jobs
 - Submit new job scripts
 - View job stdout and stderr files
+- Optionally disable job submission for read-only mode
 
 ## Usage
 
@@ -23,6 +24,8 @@ pip install -r requirements.txt
 export FLASK_APP=slurm_dashboard.app
 # Use debug scheduler if you do not have access to Slurm
 export SCHEDULER_BACKEND=debug
+# Disable job submission by setting this to 0 or "false"
+export ENABLE_JOB_SUBMISSION=1
 flask run
 ```
 
