@@ -8,6 +8,7 @@ This project provides a simple Flask based dashboard for monitoring Slurm jobs. 
 - Cancel running jobs
 - Submit new job scripts
 - View job stdout and stderr files
+- Password protected access to the dashboard
 
 ## Usage
 
@@ -23,6 +24,7 @@ pip install -r requirements.txt
 export FLASK_APP=slurm_dashboard.app
 # Use debug scheduler if you do not have access to Slurm
 export SCHEDULER_BACKEND=debug
+export DASHBOARD_PASSWORD=mysecret  # optional, defaults to 'admin'
 flask run
 ```
 

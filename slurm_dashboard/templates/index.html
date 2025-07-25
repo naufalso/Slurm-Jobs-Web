@@ -16,7 +16,10 @@
 </head>
 <body>
     <h1>Slurm Job Queue</h1>
-    <p><a href="{{ url_for('submit') }}">Submit new job</a></p>
+    <p>
+        <a href="{{ url_for('submit') }}">Submit new job</a> |
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </p>
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
     <ul>
