@@ -1,9 +1,17 @@
 <!doctype html>
-<html>
-<head><title>{{ file_type.capitalize() }} for Job {{ job_id }}</title></head>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>{{ file_type.capitalize() }} for Job {{ job_id }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2em; }
+        pre { background: #f9f9f9; padding: 1em; border: 1px solid #ccc; }
+        a { display: inline-block; margin-top: 1em; }
+    </style>
+</head>
 <body>
     <h1>{{ file_type.capitalize() }} for Job {{ job_id }}</h1>
     <pre>{{ content }}</pre>
-    <p><a href="{{ url_for('index') }}">Back</a></p>
+    <a href="{{ url_for('index') }}">Back</a>
 </body>
 </html>

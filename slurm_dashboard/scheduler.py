@@ -56,11 +56,14 @@ class SlurmScheduler(Scheduler):
             'TimeLimit',
             'TimeUsed',
         ]
-        command = f"squeue --noheader -O {','.join(cols)} --me"
+        delimiter = '|'
+        command = (
+            f"squeue --noheader --delimiter={delimiter} -O {','.join(cols)} --me"
+        )
         output = self._run(command)
         jobs: List[Job] = []
         for line in output.splitlines():
-            parts = line.split()
+            parts = [p.strip() for p in line.split(delimiter)]
             if len(parts) < len(cols):
                 continue
             job_id, name, state, nodelist, queue, tl, tu = parts[:7]
