@@ -1,7 +1,18 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
-    <title>Slurm Jobs</title>
+    <meta charset="utf-8">
+    <title>Slurm Jobs Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2em; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1em; }
+        th, td { padding: 0.5em; border: 1px solid #ccc; text-align: left; }
+        th { background-color: #f0f0f0; }
+        .actions form { display: inline; margin: 0; }
+        .actions a { margin-left: 0.5em; }
+        .flash-success { color: green; }
+        .flash-error { color: red; }
+    </style>
 </head>
 <body>
     <h1>Slurm Job Queue</h1>
@@ -10,15 +21,25 @@
     {% if messages %}
     <ul>
         {% for category, message in messages %}
-        <li><strong>{{ category }}</strong>: {{ message }}</li>
+        <li class="flash-{{ category }}">{{ message }}</li>
         {% endfor %}
     </ul>
     {% endif %}
     {% endwith %}
-    <table border="1" cellpadding="5" cellspacing="0">
+    <table>
+        <thead>
         <tr>
-            <th>ID</th><th>Name</th><th>Status</th><th>Queue</th><th>NodeList</th><th>Time Used</th><th>Time Limit</th><th>Actions</th>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Status</th>
+            <th>Queue</th>
+            <th>NodeList</th>
+            <th>Time Used</th>
+            <th>Time Limit</th>
+            <th>Actions</th>
         </tr>
+        </thead>
+        <tbody>
         {% for job in jobs %}
         <tr>
             <td>{{ job.id }}</td>
@@ -28,8 +49,8 @@
             <td>{{ job.node_list }}</td>
             <td>{{ job.cur_time }}</td>
             <td>{{ job.max_time }}</td>
-            <td>
-                <form action="{{ url_for('cancel', job_id=job.id) }}" method="post" style="display:inline">
+            <td class="actions">
+                <form action="{{ url_for('cancel', job_id=job.id) }}" method="post">
                     <button type="submit">Cancel</button>
                 </form>
                 <a href="{{ url_for('output', job_id=job.id) }}">Output</a>
@@ -37,6 +58,7 @@
             </td>
         </tr>
         {% endfor %}
+        </tbody>
     </table>
 </body>
 </html>
