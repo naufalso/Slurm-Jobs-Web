@@ -1,5 +1,14 @@
 import os
-from flask import Flask, redirect, render_template, request, url_for, flash
+from functools import wraps
+from flask import (
+    Flask,
+    redirect,
+    render_template,
+    request,
+    url_for,
+    flash,
+    session,
+)
 from .scheduler import get_scheduler, Job
 
 app = Flask(__name__)
@@ -7,12 +16,49 @@ app.secret_key = 'change-me'
 
 scheduler = get_scheduler()
 
+
+def login_required(func):
+    """Redirect to the login page if the user is not authenticated."""
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if not session.get("logged_in"):
+            return redirect(url_for("login", next=request.path))
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    """Simple password based login."""
+    if request.method == "POST":
+        password = request.form.get("password", "")
+        expected = os.environ.get("DASHBOARD_PASSWORD", "admin")
+        if password == expected:
+            session["logged_in"] = True
+            flash("Logged in successfully", "success")
+            next_page = request.args.get("next") or url_for("index")
+            return redirect(next_page)
+        flash("Invalid password", "error")
+    return render_template("login.html")
+
+
+@app.route("/logout")
+def logout():
+    """Clear the session and redirect to the login page."""
+    session.clear()
+    flash("Logged out", "success")
+    return redirect(url_for("login"))
+
 @app.route('/')
+@login_required
 def index():
     jobs = scheduler.get_queue()
     return render_template('index.html', jobs=jobs)
 
 @app.route('/cancel/<job_id>', methods=['POST'])
+@login_required
 def cancel(job_id):
     job = next((j for j in scheduler.get_queue() if j.id == job_id), None)
     if job:
@@ -23,6 +69,7 @@ def cancel(job_id):
     return redirect(url_for('index'))
 
 @app.route('/submit', methods=['GET', 'POST'])
+@login_required
 def submit():
     if request.method == 'POST':
         script = request.form.get('script')
@@ -33,6 +80,7 @@ def submit():
     return render_template('submit.html')
 
 @app.route('/output/<job_id>')
+@login_required
 def output(job_id):
     job = next((j for j in scheduler.get_queue() if j.id == job_id), None)
     path = scheduler.get_job_output_path(job) if job else None
@@ -44,6 +92,7 @@ def output(job_id):
     return render_template('file_view.html', job_id=job_id, content=content, file_type='output')
 
 @app.route('/error/<job_id>')
+@login_required
 def error(job_id):
     job = next((j for j in scheduler.get_queue() if j.id == job_id), None)
     path = scheduler.get_job_error_path(job) if job else None
