@@ -56,10 +56,11 @@ class SlurmScheduler(Scheduler):
             'TimeLimit',
             'TimeUsed',
         ]
-        delimiter = '|'
-        command = (
-            f"squeue --noheader --delimiter={delimiter} -O {','.join(cols)} --me"
-        )
+        # Older Slurm versions do not support the ``--delimiter`` option.
+        # Use a custom format string instead and split on a known character.
+        delimiter = "|"
+        fmt = "%i|%j|%T|%N|%P|%l|%M"
+        command = f"squeue --noheader -o '{fmt}' --me"
         output = self._run(command)
         jobs: List[Job] = []
         for line in output.splitlines():
