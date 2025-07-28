@@ -14,6 +14,10 @@ from .scheduler import get_scheduler, Job
 app = Flask(__name__)
 app.secret_key = 'change-me'
 
+# Allow disabling of job submission via environment variable
+_env_var = os.environ.get("ENABLE_JOB_SUBMISSION", "true").lower()
+SUBMISSION_ENABLED = _env_var not in ("0", "false", "no")
+
 scheduler = get_scheduler()
 
 
@@ -55,7 +59,7 @@ def logout():
 @login_required
 def index():
     jobs = scheduler.get_queue()
-    return render_template('index.html', jobs=jobs)
+    return render_template('index.html', jobs=jobs, submission_enabled=SUBMISSION_ENABLED)
 
 @app.route('/cancel/<job_id>', methods=['POST'])
 @login_required
@@ -71,6 +75,9 @@ def cancel(job_id):
 @app.route('/submit', methods=['GET', 'POST'])
 @login_required
 def submit():
+    if not SUBMISSION_ENABLED:
+        flash('Job submission is disabled', 'error')
+        return redirect(url_for('index'))
     if request.method == 'POST':
         script = request.form.get('script')
         if script:
