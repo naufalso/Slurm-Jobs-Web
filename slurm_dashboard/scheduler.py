@@ -20,6 +20,9 @@ class Job:
     error_file: Optional[str] = None
     max_time: Optional[WallTime] = None
     cur_time: Optional[WallTime] = None
+    start_time: Optional[str] = None
+    end_time: Optional[str] = None
+    exit_code: Optional[str] = None
 
 
 class Scheduler:
@@ -36,6 +39,15 @@ class Scheduler:
         raise NotImplementedError
 
     def get_job_error_path(self, job: Job) -> Optional[str]:
+        raise NotImplementedError
+
+    def get_history(
+        self,
+        start_time: Optional[str] = None,
+        end_time: Optional[str] = None,
+        states: Optional[List[str]] = None,
+    ) -> List[Job]:
+        """Return finished jobs filtered by optional time range and states."""
         raise NotImplementedError
 
 
@@ -107,6 +119,42 @@ class SlurmScheduler(Scheduler):
                 return token.split('=', 1)[1]
         return None
 
+    def get_history(
+        self,
+        start_time: Optional[str] = None,
+        end_time: Optional[str] = None,
+        states: Optional[List[str]] = None,
+    ) -> List[Job]:
+        delimiter = "|"
+        fmt = "%i|%j|%T|%P|%N|%S|%E|%X"
+        command = f"sacct -n -o '{fmt}'"
+        if start_time:
+            command += f" -S {start_time}"
+        if end_time:
+            command += f" -E {end_time}"
+        if states:
+            command += f" -s {','.join(states)}"
+        output = self._run(command)
+        jobs: List[Job] = []
+        for line in output.splitlines():
+            parts = [p.strip() for p in line.split(delimiter)]
+            if len(parts) < 8:
+                continue
+            job_id, name, state, queue, nodelist, start, end, code = parts[:8]
+            jobs.append(
+                Job(
+                    job_id,
+                    name,
+                    state,
+                    queue,
+                    nodelist,
+                    start_time=start or None,
+                    end_time=end or None,
+                    exit_code=code or None,
+                )
+            )
+        return jobs
+
 
 class DebugScheduler(Scheduler):
     def __init__(self) -> None:
@@ -138,6 +186,17 @@ class DebugScheduler(Scheduler):
 
     def get_job_error_path(self, job: Job) -> Optional[str]:
         return job.error_file
+
+    def get_history(
+        self,
+        start_time: Optional[str] = None,
+        end_time: Optional[str] = None,
+        states: Optional[List[str]] = None,
+    ) -> List[Job]:
+        jobs = [j for j in self.jobs if j.status not in {"RUNNING", "PENDING"}]
+        if states:
+            jobs = [j for j in jobs if j.status in states]
+        return list(jobs)
 
 
 def get_scheduler() -> Scheduler:
