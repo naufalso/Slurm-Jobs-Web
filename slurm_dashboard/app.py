@@ -9,6 +9,7 @@ from flask import (
     flash,
     session,
 )
+from urllib.parse import urlencode
 from .scheduler import get_scheduler, Job
 from datetime import datetime, timedelta
 
@@ -76,6 +77,8 @@ def history():
     start = request.args.get('start')
     end = request.args.get('end')
     status = request.args.get('status')
+    page = int(request.args.get('page', 1))
+    per_page = int(request.args.get('per_page', 20))
     if range_sel == '1d':
         start = (datetime.utcnow() - timedelta(days=1)).strftime('%Y-%m-%d')
     elif range_sel == '1w':
@@ -85,12 +88,37 @@ def history():
     except RuntimeError as e:
         flash(str(e) or 'Failed to retrieve job history', 'error')
         jobs = []
+    # Filter out generic job names
+    jobs = [j for j in jobs if j.name not in {'batch', 'bash', 'extern'}]
+
+    total = len(jobs)
+    start_idx = (page - 1) * per_page
+    end_idx = start_idx + per_page
+    jobs = jobs[start_idx:end_idx]
+
+    args = request.args.to_dict(flat=True)
+    args.pop('page', None)
+    args.pop('per_page', None)
+
+    def page_url(num: int) -> str:
+        params = args.copy()
+        params.update({'page': num, 'per_page': per_page})
+        return url_for('history') + '?' + urlencode(params)
+
+    prev_url = page_url(page - 1) if page > 1 else None
+    next_url = page_url(page + 1) if end_idx < total else None
+
     return render_template(
         'history.html',
         jobs=jobs,
         start=start or '',
         end=end or '',
         status=status or '',
+        page=page,
+        per_page=per_page,
+        total=total,
+        prev_url=prev_url,
+        next_url=next_url,
     )
 
 @app.route('/cancel/<job_id>', methods=['POST'])

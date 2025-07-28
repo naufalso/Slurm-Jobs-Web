@@ -4,24 +4,27 @@
     <meta charset="utf-8">
     <title>Slurm Jobs Dashboard</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 2em; }
+        body { font-family: Arial, sans-serif; margin: 2em; background-color:#f8f9fa; }
         table { width: 100%; border-collapse: collapse; margin-top: 1em; }
-        th, td { padding: 0.5em; border: 1px solid #ccc; text-align: left; }
-        th { background-color: #f0f0f0; }
+        th, td { padding: 0.5em; border: 1px solid #dee2e6; text-align: left; }
+        th { background-color: #343a40; color: #fff; }
         .actions form { display: inline; margin: 0; }
         .actions a { margin-left: 0.5em; }
         .flash-success { color: green; }
         .flash-error { color: red; }
+        .btn { background-color: #007bff; color:#fff; padding:0.3em 0.6em; border:none; border-radius:4px; text-decoration:none; }
+        .btn:hover { background-color:#0056b3; }
+        .table-container { max-height:60vh; overflow-y:auto; }
     </style>
 </head>
 <body>
     <h1>Slurm Job Queue</h1>
     <p>
         {% if submission_enabled %}
-        <a href="{{ url_for('submit') }}">Submit new job</a> |
+        <a class="btn" href="{{ url_for('submit') }}">Submit new job</a> |
         {% endif %}
-        <a href="{{ url_for('history') }}">Past jobs</a> |
-        <a href="{{ url_for('logout') }}">Logout</a>
+        <a class="btn" href="{{ url_for('history') }}">Past jobs</a> |
+        <a class="btn" href="{{ url_for('logout') }}">Logout</a>
     </p>
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
@@ -32,6 +35,7 @@
     </ul>
     {% endif %}
     {% endwith %}
+    <div class="table-container">
     <table>
         <thead>
         <tr>
@@ -57,14 +61,15 @@
             <td>{{ job.max_time }}</td>
             <td class="actions">
                 <form action="{{ url_for('cancel', job_id=job.id) }}" method="post">
-                    <button type="submit">Cancel</button>
+                    <button class="btn" type="submit">Cancel</button>
                 </form>
-                <a href="{{ url_for('output', job_id=job.id) }}">Output</a>
-                <a href="{{ url_for('error', job_id=job.id) }}">Error</a>
+                <a class="btn" href="{{ url_for('output', job_id=job.id) }}">Output</a>
+                <a class="btn" href="{{ url_for('error', job_id=job.id) }}">Error</a>
             </td>
         </tr>
         {% endfor %}
         </tbody>
     </table>
+    </div>
 </body>
 </html>
