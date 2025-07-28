@@ -4,13 +4,16 @@
     <meta charset="utf-8">
     <title>Job History</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 2em; }
+        body { font-family: Arial, sans-serif; margin: 2em; background-color:#f8f9fa; }
         table { width: 100%; border-collapse: collapse; margin-top: 1em; }
-        th, td { padding: 0.5em; border: 1px solid #ccc; text-align: left; }
-        th { background-color: #f0f0f0; }
+        th, td { padding: 0.5em; border: 1px solid #dee2e6; text-align: left; }
+        th { background-color: #343a40; color: #fff; }
         form { margin-bottom: 1em; }
         .flash-success { color: green; }
         .flash-error { color: red; }
+        .btn { background-color: #007bff; color:#fff; padding:0.3em 0.6em; border:none; border-radius:4px; text-decoration:none; }
+        .btn:hover { background-color:#0056b3; }
+        .table-container { max-height:60vh; overflow-y:auto; }
     </style>
 </head>
 <body>
@@ -47,9 +50,10 @@
                 <option value="TIMEOUT" {% if status=='TIMEOUT' %}selected{% endif %}>TIMEOUT</option>
             </select>
         </label>
-        <button type="submit">Apply</button>
-        <a href="{{ url_for('index') }}">Back</a>
+        <button class="btn" type="submit">Apply</button>
+        <a class="btn" href="{{ url_for('index') }}">Back</a>
     </form>
+    <div class="table-container">
     <table>
         <thead>
         <tr>
@@ -78,5 +82,14 @@
         {% endfor %}
         </tbody>
     </table>
+    </div>
+    <p>
+        {% if prev_url %}
+        <a class="btn" href="{{ prev_url }}">Previous</a>
+        {% endif %}
+        {% if next_url %}
+        <a class="btn" href="{{ next_url }}">Next</a>
+        {% endif %}
+    </p>
 </body>
 </html>

@@ -4,14 +4,16 @@
     <meta charset="utf-8">
     <title>{{ file_type.capitalize() }} for Job {{ job_id }}</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 2em; }
+        body { font-family: Arial, sans-serif; margin: 2em; background-color:#f8f9fa; }
         pre { background: #f9f9f9; padding: 1em; border: 1px solid #ccc; }
         a { display: inline-block; margin-top: 1em; }
+        .btn { background-color: #007bff; color:#fff; padding:0.3em 0.6em; border:none; border-radius:4px; text-decoration:none; }
+        .btn:hover { background-color:#0056b3; }
     </style>
 </head>
 <body>
     <h1>{{ file_type.capitalize() }} for Job {{ job_id }}</h1>
     <pre>{{ content }}</pre>
-    <a href="{{ url_for('index') }}">Back</a>
+    <a class="btn" href="{{ url_for('index') }}">Back</a>
 </body>
 </html>
