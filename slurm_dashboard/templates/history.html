@@ -9,10 +9,21 @@
         th, td { padding: 0.5em; border: 1px solid #ccc; text-align: left; }
         th { background-color: #f0f0f0; }
         form { margin-bottom: 1em; }
+        .flash-success { color: green; }
+        .flash-error { color: red; }
     </style>
 </head>
 <body>
     <h1>Past Jobs</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <ul>
+        {% for category, message in messages %}
+        <li class="flash-{{ category }}">{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
     <form method="get">
         <label>Range:
             <select name="range">

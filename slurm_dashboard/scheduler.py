@@ -126,8 +126,8 @@ class SlurmScheduler(Scheduler):
         states: Optional[List[str]] = None,
     ) -> List[Job]:
         delimiter = "|"
-        fmt = "%i|%j|%T|%P|%N|%S|%E|%X"
-        command = f"sacct -n -o '{fmt}'"
+        fields = "JobID,JobName,State,Partition,NodeList,Start,End,ExitCode"
+        command = f"sacct -n -P -o {fields}"
         if start_time:
             command += f" -S {start_time}"
         if end_time:

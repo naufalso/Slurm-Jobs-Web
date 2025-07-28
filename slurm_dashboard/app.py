@@ -59,7 +59,11 @@ def logout():
 @app.route('/')
 @login_required
 def index():
-    jobs = scheduler.get_queue()
+    try:
+        jobs = scheduler.get_queue()
+    except RuntimeError as e:
+        flash(str(e) or 'Failed to retrieve job queue', 'error')
+        jobs = []
     return render_template('index.html', jobs=jobs, submission_enabled=SUBMISSION_ENABLED)
 
 
@@ -76,7 +80,11 @@ def history():
         start = (datetime.utcnow() - timedelta(days=1)).strftime('%Y-%m-%d')
     elif range_sel == '1w':
         start = (datetime.utcnow() - timedelta(days=7)).strftime('%Y-%m-%d')
-    jobs = scheduler.get_history(start, end, [status] if status else None)
+    try:
+        jobs = scheduler.get_history(start, end, [status] if status else None)
+    except RuntimeError as e:
+        flash(str(e) or 'Failed to retrieve job history', 'error')
+        jobs = []
     return render_template(
         'history.html',
         jobs=jobs,
