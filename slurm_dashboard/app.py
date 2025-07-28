@@ -82,6 +82,7 @@ def history():
         start = (datetime.utcnow() - timedelta(days=7)).strftime('%Y-%m-%d')
     try:
         jobs = scheduler.get_history(start, end, [status] if status else None)
+        print("history jobs:", jobs)
     except RuntimeError as e:
         flash(str(e) or 'Failed to retrieve job history', 'error')
         jobs = []

@@ -1,4 +1,6 @@
 import importlib
+from slurm_dashboard.scheduler import DebugScheduler
+
 app_module = importlib.import_module('slurm_dashboard.app')
 
 class FailingScheduler:
@@ -45,3 +47,16 @@ def test_history_handles_scheduler_error(monkeypatch):
         resp = client.get('/history')
         assert resp.status_code == 200
         assert b'history error' in resp.data
+
+
+def test_history_prints_jobs(monkeypatch, capsys):
+    sched = DebugScheduler()
+    monkeypatch.setattr(app_module, 'scheduler', sched)
+    app_module.app.testing = True
+    client = app_module.app.test_client()
+    with client:
+        _login(client)
+        resp = client.get('/history')
+        assert resp.status_code == 200
+    output = capsys.readouterr().out
+    assert 'history jobs:' in output
