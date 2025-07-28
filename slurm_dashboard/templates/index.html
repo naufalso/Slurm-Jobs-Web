@@ -20,6 +20,7 @@
         {% if submission_enabled %}
         <a href="{{ url_for('submit') }}">Submit new job</a> |
         {% endif %}
+        <a href="{{ url_for('history') }}">Past jobs</a> |
         <a href="{{ url_for('logout') }}">Logout</a>
     </p>
     {% with messages = get_flashed_messages(with_categories=true) %}

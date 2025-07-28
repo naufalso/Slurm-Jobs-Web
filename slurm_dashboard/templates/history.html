@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Job History</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2em; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1em; }
+        th, td { padding: 0.5em; border: 1px solid #ccc; text-align: left; }
+        th { background-color: #f0f0f0; }
+        form { margin-bottom: 1em; }
+    </style>
+</head>
+<body>
+    <h1>Past Jobs</h1>
+    <form method="get">
+        <label>Range:
+            <select name="range">
+                <option value="">Custom</option>
+                <option value="1d">Last day</option>
+                <option value="1w">Last week</option>
+            </select>
+        </label>
+        <label>Start:
+            <input type="date" name="start" value="{{ start }}">
+        </label>
+        <label>End:
+            <input type="date" name="end" value="{{ end }}">
+        </label>
+        <label>Status:
+            <select name="status">
+                <option value="" {% if not status %}selected{% endif %}>All</option>
+                <option value="COMPLETED" {% if status=='COMPLETED' %}selected{% endif %}>COMPLETED</option>
+                <option value="FAILED" {% if status=='FAILED' %}selected{% endif %}>FAILED</option>
+                <option value="CANCELLED" {% if status=='CANCELLED' %}selected{% endif %}>CANCELLED</option>
+                <option value="TIMEOUT" {% if status=='TIMEOUT' %}selected{% endif %}>TIMEOUT</option>
+            </select>
+        </label>
+        <button type="submit">Apply</button>
+        <a href="{{ url_for('index') }}">Back</a>
+    </form>
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Status</th>
+            <th>Queue</th>
+            <th>NodeList</th>
+            <th>Start</th>
+            <th>End</th>
+            <th>Exit Code</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for job in jobs %}
+        <tr>
+            <td>{{ job.id }}</td>
+            <td>{{ job.name }}</td>
+            <td>{{ job.status }}</td>
+            <td>{{ job.queue }}</td>
+            <td>{{ job.node_list }}</td>
+            <td>{{ job.start_time }}</td>
+            <td>{{ job.end_time }}</td>
+            <td>{{ job.exit_code }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

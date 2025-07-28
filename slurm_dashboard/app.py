@@ -10,6 +10,7 @@ from flask import (
     session,
 )
 from .scheduler import get_scheduler, Job
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 app.secret_key = 'change-me'
@@ -60,6 +61,29 @@ def logout():
 def index():
     jobs = scheduler.get_queue()
     return render_template('index.html', jobs=jobs, submission_enabled=SUBMISSION_ENABLED)
+
+
+@app.route('/history')
+@login_required
+def history():
+    """Display finished jobs with optional filters."""
+    # range shortcuts
+    range_sel = request.args.get('range')
+    start = request.args.get('start')
+    end = request.args.get('end')
+    status = request.args.get('status')
+    if range_sel == '1d':
+        start = (datetime.utcnow() - timedelta(days=1)).strftime('%Y-%m-%d')
+    elif range_sel == '1w':
+        start = (datetime.utcnow() - timedelta(days=7)).strftime('%Y-%m-%d')
+    jobs = scheduler.get_history(start, end, [status] if status else None)
+    return render_template(
+        'history.html',
+        jobs=jobs,
+        start=start or '',
+        end=end or '',
+        status=status or '',
+    )
 
 @app.route('/cancel/<job_id>', methods=['POST'])
 @login_required
