@@ -4,6 +4,7 @@ import os
 import subprocess
 from dataclasses import dataclass
 from typing import List, Optional
+from datetime import datetime
 
 from .walltime import WallTime
 
@@ -23,6 +24,7 @@ class Job:
     start_time: Optional[str] = None
     end_time: Optional[str] = None
     exit_code: Optional[str] = None
+    run_duration: Optional[str] = None
 
 
 class Scheduler:
@@ -141,6 +143,17 @@ class SlurmScheduler(Scheduler):
             if len(parts) < 8:
                 continue
             job_id, name, state, queue, nodelist, start, end, code = parts[:8]
+
+            run_dur = None
+            if start and end:
+                try:
+                    start_dt = datetime.fromisoformat(start)
+                    end_dt = datetime.fromisoformat(end)
+                    delta_sec = int((end_dt - start_dt).total_seconds())
+                    run_dur = str(WallTime(seconds=delta_sec))
+                except ValueError:
+                    run_dur = None
+
             jobs.append(
                 Job(
                     job_id,
@@ -151,6 +164,7 @@ class SlurmScheduler(Scheduler):
                     start_time=start or None,
                     end_time=end or None,
                     exit_code=code or None,
+                    run_duration=run_dur,
                 )
             )
         return jobs
