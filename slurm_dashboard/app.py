@@ -150,7 +150,9 @@ def submit():
 @login_required
 def output(job_id):
     job = next((j for j in scheduler.get_queue() if j.id == job_id), None)
-    path = scheduler.get_job_output_path(job) if job else None
+    if not job:
+        job = Job(job_id, '', '')
+    path = scheduler.get_job_output_path(job)
     if path and os.path.exists(path):
         with open(path) as f:
             content = f.read()
@@ -162,13 +164,37 @@ def output(job_id):
 @login_required
 def error(job_id):
     job = next((j for j in scheduler.get_queue() if j.id == job_id), None)
-    path = scheduler.get_job_error_path(job) if job else None
+    if not job:
+        job = Job(job_id, '', '')
+    path = scheduler.get_job_error_path(job)
     if path and os.path.exists(path):
         with open(path) as f:
             content = f.read()
     else:
         content = 'No error output available'
     return render_template('file_view.html', job_id=job_id, content=content, file_type='error')
+
+
+@app.route('/details/<job_id>')
+@login_required
+def details(job_id):
+    try:
+        info = scheduler.get_job_details(job_id)
+    except RuntimeError as e:
+        flash(str(e) or 'Failed to retrieve job details', 'error')
+        info = ''
+    job = Job(job_id, '', '')
+    stdout_path = scheduler.get_job_output_path(job)
+    stderr_path = scheduler.get_job_error_path(job)
+    stdout_exists = stdout_path and os.path.exists(stdout_path)
+    stderr_exists = stderr_path and os.path.exists(stderr_path)
+    return render_template(
+        'details.html',
+        job_id=job_id,
+        details=info,
+        stdout_exists=stdout_exists,
+        stderr_exists=stderr_exists,
+    )
 
 if __name__ == '__main__':
     app.run(debug=True)

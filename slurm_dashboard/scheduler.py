@@ -52,6 +52,10 @@ class Scheduler:
         """Return finished jobs filtered by optional time range and states."""
         raise NotImplementedError
 
+    def get_job_details(self, job_id: str) -> str:
+        """Return raw details for a job via ``scontrol show job``."""
+        raise NotImplementedError
+
 
 class SlurmScheduler(Scheduler):
     def _run(self, command: str) -> str:
@@ -59,6 +63,10 @@ class SlurmScheduler(Scheduler):
         if out.returncode != 0:
             raise RuntimeError(out.stderr.strip())
         return out.stdout.strip()
+
+    def get_job_details(self, job_id: str) -> str:
+        """Return ``scontrol show job`` output for the given job id."""
+        return self._run(f"scontrol show job {job_id}")
 
     def get_queue(self) -> List[Job]:
         cols = [
@@ -200,6 +208,15 @@ class DebugScheduler(Scheduler):
 
     def get_job_error_path(self, job: Job) -> Optional[str]:
         return job.error_file
+
+    def get_job_details(self, job_id: str) -> str:
+        job = next((j for j in self.jobs if j.id == job_id), None)
+        if not job:
+            raise RuntimeError("Job not found")
+        return (
+            f"JobId={job.id} Name={job.name} State={job.status} "
+            f"StdOut={job.output_file} StdErr={job.error_file}"
+        )
 
     def get_history(
         self,

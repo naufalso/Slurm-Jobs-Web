@@ -66,6 +66,7 @@
             <th>End</th>
             <th>RunDuration</th>
             <th>Exit Code</th>
+            <th>Details</th>
         </tr>
         </thead>
         <tbody>
@@ -80,6 +81,7 @@
             <td>{{ job.end_time }}</td>
             <td>{{ job.run_duration }}</td>
             <td>{{ job.exit_code }}</td>
+            <td><a class="btn" href="{{ url_for('details', job_id=job.id) }}">Details</a></td>
         </tr>
         {% endfor %}
         </tbody>
