@@ -64,6 +64,7 @@
             <th>NodeList</th>
             <th>Start</th>
             <th>End</th>
+            <th>RunDuration</th>
             <th>Exit Code</th>
         </tr>
         </thead>
@@ -77,6 +78,7 @@
             <td>{{ job.node_list }}</td>
             <td>{{ job.start_time }}</td>
             <td>{{ job.end_time }}</td>
+            <td>{{ job.run_duration }}</td>
             <td>{{ job.exit_code }}</td>
         </tr>
         {% endfor %}

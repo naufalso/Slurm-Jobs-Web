@@ -45,3 +45,4 @@ def test_slurm_scheduler_history_parsing(monkeypatch):
     assert job.start_time == "2025-07-28T01:00:00"
     assert job.end_time == "2025-07-28T02:00:00"
     assert job.exit_code == "0:0"
+    assert job.run_duration == "1:00:00"
